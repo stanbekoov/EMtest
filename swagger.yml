@@ -1,0 +1,349 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /info:
+    get:
+      parameters:
+        - name: group
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: song
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongDetail'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /songs:
+    description: retrieve songs with filters and pagination
+
+    get:
+      parameters:
+        - name: group
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: song
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: releaseDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: link
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: text
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: like
+          in: query
+          required: false
+          schema:
+            type: string
+          description: когда данный параметр использован в uri, идет поиск слов по вхождению, а не по полному соответствию. Может принимать любое значение
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Song'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      requestBody:
+        description: создаваемая песня в формате, описанном в ТЗ
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SongInput"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Song"
+                description: Созданная запись
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /songs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      description: получить одну песню по id
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Song'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      description: удалить одну песню по id
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      requestBody:
+        description: новые данные для песни. Пропущенные поля изменены не будут
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SongInput"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Song'
+                description: Обновленная запись
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /songs/{id}/text:
+    get:
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            default: 1
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            default: 4
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongText"
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /songs/{id}/info:
+    description: >
+      Создать запись с информацией о существующей песне. Если запись для данной песни уже существует,
+      используется соответствующий PATCH запрос, описанный ниже
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SongDetail"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongDetail"
+                description: Созданная запись
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      description: удалить данные о песне по id
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      requestBody:
+        description: новые данные для записи. Пропущенные поля изменены не будут
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SongDetail"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SongDetail"
+                description: Обновленная запись
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+
+components:
+  responses:
+    '200':
+      description: OK
+    '400':
+      description: bad request
+    '404':
+      description: not found
+    '500':
+      description: internal server error
+  schemas:
+    SuccessMessage:
+      type: object
+      required:
+        - text
+      properties:
+        message:
+          type: string
+          example: ok
+    SongText:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          example: Why does it feel like night today?\nSomething in heres not right today
+    SongInput:
+      type: object
+      required:
+        - group
+        - song
+      properties:
+        group:
+          type: string
+          example: Linkin Park
+        song:
+          type: string
+          example: Papercut
+    Song:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/SongDetail"
+      required:
+        - id
+        - group
+        - song
+      properties:
+        id:
+          type: integer
+          example: 2
+        group:
+          type: string
+          example: Linkin Park
+        song:
+          type: string
+          example: Papercut
+    SongDetail:
+      allOf:
+        - $ref: "#/components/schemas/SongDetailInput"
+      properties:
+        id:
+          type: integer
+          description: id данной записи
+        songID:
+          type: integer
+          description: id песни, которой принадлежит данная информация
+    SongDetailInput:
+      required:
+        - releaseDate
+        - text
+        - link
+      type: object
+      properties:
+        releaseDate:
+          type: string
+          example: 16.07.2006
+        text:
+          type: string
+          example: Ooh baby, don't you know I suffer?\nOoh baby, can you hear me moan?\nYou caught me under false pretenses\nHow long before you let me go?\n\nOoh\nYou set my soul alight\nOoh\nYou set my soul alight
+        link:
+          type: string
+          example: https://www.youtube.com/watch?v=Xsp3_a-PMTw
